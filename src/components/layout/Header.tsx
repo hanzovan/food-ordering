@@ -29,6 +29,7 @@ export default function Header() {
                     </button>
                 )}
                 {status !== 'authenticated' && (
+
                     <>
                         <Link href={'/login'}>Login</Link>
                         <Link 
