@@ -4,12 +4,15 @@ import bcrypt from "bcrypt";
 
 // Define an interface for the user model to ensure type safety
 interface IUser {
+    name: string;
     email: string;
     password: string;
+    image: string;
 }
 
 // Create a Mongoose schema for users with typed fields for email and password
 const UserSchema = new Schema<IUser>({
+    name: { type: String },
     email: { type: String, required: true, unique: true },
     password: {
         type: String,
@@ -28,7 +31,8 @@ const UserSchema = new Schema<IUser>({
             },
             message: "Your password need to have at least 6 characters with not only normal character, but also number and special character"
         }
-    }
+    },
+    image: { type: String }
 }, {timestamps: true});
 
 // Use a Mongoose 'pre-save' hook to hash the user's password before saving to the database

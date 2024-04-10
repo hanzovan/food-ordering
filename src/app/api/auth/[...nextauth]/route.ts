@@ -5,6 +5,10 @@ import { User } from "@/models/User";
 import bcrypt from "bcrypt";
 
 import GoogleProvider from "next-auth/providers/google";
+import clientPromise from "@/libs/mongoConnect";
+
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { Adapter } from "next-auth/adapters";
 
 interface Credentials {
     email: string;
@@ -13,6 +17,8 @@ interface Credentials {
 
 const handler = NextAuth({
     secret: process.env.SECRET,
+    
+    // adapter: MongoDBAdapter(clientPromise) as Adapter,
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -31,7 +37,9 @@ const handler = NextAuth({
                     return null;
                 }
 
-                const { email, password } = credentials;
+                // const { email, password } = credentials;
+                const email = credentials.email;
+                const password = credentials.password;
 
                 if (!email || !password) {
                     console.log("Missing email or password")
@@ -40,14 +48,14 @@ const handler = NextAuth({
                 
                 await connect(process.env.MONGO_URL!);
                 
-                const user = await User.findOne({ email }).exec();
+                const MongoUser = await User.findOne({ email }).exec();
 
-                if (!user) {
+                if (!MongoUser) {
                     console.log("User not found");
                     return null;
                 }
 
-                const passwordOk = await bcrypt.compare(password, user.password);
+                const passwordOk = await bcrypt.compare(password, MongoUser.password);
 
                 console.log({ passwordOk });
 
@@ -57,8 +65,10 @@ const handler = NextAuth({
                 else {
                     console.log("Valid credentials");
 
+                    const user = { id: MongoUser._id.toString(), name: MongoUser.name, email: MongoUser.email, image: MongoUser.image }
+
                     // Return a simple user object instead of MongoDB user, which will raise Error in authorize function
-                    return { id: user._id.toString(), email: user.email };
+                    return user;
                 }
                 
                 return null;

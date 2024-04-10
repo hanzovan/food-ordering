@@ -13,7 +13,7 @@ export default function Header() {
                 className="text-primary font-semibold text-2xl" 
                 href="/"
                 >
-                    DANIELL PIZZA
+                    DANIELLE PIZZA
                 </Link>
                 <Link href={'/'}>Home</Link>
                 <Link href={''}>Menu</Link>
