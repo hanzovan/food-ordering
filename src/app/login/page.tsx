@@ -18,7 +18,7 @@ export default function LoginPage() {
 
         setloginInProgress(true);
         
-        await signIn('credentials', { email, password });
+        await signIn('credentials', { email, password, callbackUrl: '/' });
         
         // Enable logging again
         setloginInProgress(false); 
@@ -49,7 +49,7 @@ export default function LoginPage() {
                         or login with provider
                     </div>
                 </form>
-                    <button onClick={() => signIn('google')}
+                    <button onClick={() => signIn('google', {callbackUrl:'/'})}
                         className="flex gap-4 justify-center">
                         <Image src={'/google.png'} alt={'google icon'} width={24} height={24} />
                         Login with google
