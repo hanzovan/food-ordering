@@ -4,6 +4,8 @@ import { connect } from "mongoose";
 import { User } from "@/models/User";
 import bcrypt from "bcrypt";
 
+import GoogleProvider from "next-auth/providers/google";
+
 interface Credentials {
     email: string;
     password: string;
@@ -12,21 +14,24 @@ interface Credentials {
 const handler = NextAuth({
     secret: process.env.SECRET,
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+          }),
         CredentialsProvider({
             name: "Credentials",
             id: "credentials",
             credentials: {
                 email: { label: "Email", type: "email", placeholder: "YourEmail@example.com" },
                 password: { label: "Password", type: "password" }
-            },
-            async authorize(credentials: Record<"email" | "password", string> | undefined) {
+            },            
+                async authorize(credentials: Credentials | undefined) {
                 if (!credentials) {
                     console.log("Credentials did not exist")
                     return null;
                 }
 
-                const email = credentials.email;
-                const password = credentials.password;
+                const { email, password } = credentials;
 
                 if (!email || !password) {
                     console.log("Missing email or password")
@@ -51,6 +56,8 @@ const handler = NextAuth({
                 }
                 else {
                     console.log("Valid credentials");
+
+                    // Return a simple user object instead of MongoDB user, which will raise Error in authorize function
                     return { id: user._id.toString(), email: user.email };
                 }
                 
